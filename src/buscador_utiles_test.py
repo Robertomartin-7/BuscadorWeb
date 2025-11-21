@@ -87,8 +87,8 @@ def test_calcula_estadisticas_indice():
     assert abs(promedio_urls_por_palabra - 2.0) < 1e-6
 
 test_normalizar_texto()
-#test_procesar_url_en_indice()
-#test_buscar_palabra_simple()
+test_procesar_url_en_indice()
+test_buscar_palabra_simple()
 #test_buscar_palabras_or()
 #test_buscar_palabras_and()
 #test_procesar_url_en_indice_top_n()
