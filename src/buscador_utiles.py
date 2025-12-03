@@ -110,16 +110,20 @@ def buscar_palabras_and(frase: str, indice: dict[str, set[str]]) -> set[str]:
     Devuelve:
     set[str]: Un conjunto de URLs donde se encontraron todas las palabras.
     """
-    res = set ()
+
     lista = normalizar_texto(frase)
     if len(lista) == 0:
         return set()
-    primera_palabra = buscar_palabra_simple(lista[0], indice)
-    for p in lista[:1]:
-        palabra = buscar_palabra_simple(p, indice)
-        res.update(palabra.intersection(primera_palabra))
-    return res
 
+    resultado = buscar_palabra_simple(lista[0], indice) 
+    for p in lista[1:]:
+        urls_palabra = buscar_palabra_simple(p, indice) 
+        resultado = resultado.intersection(urls_palabra)
+
+        if not resultado:
+            break
+
+    return resultado
 
 def procesar_url_en_indice_top_n(url: str, texto: str, indice: dict[str, set[str]], top_n: int=1000):
     """
@@ -134,8 +138,20 @@ def procesar_url_en_indice_top_n(url: str, texto: str, indice: dict[str, set[str
     indice (dict[str, set[str]]): El índice de búsqueda a actualizar.
     top_n (int): Número de palabras más frecuentes a indexar.
     """
-    # TODO: Ejercicio 6
-    pass
+    palabras = normalizar_texto(texto)
+
+    contador = Counter(palabras)
+
+    top_tuplas = contador.most_common(top_n)
+    top_palabras = []
+    for tupla in top_tuplas:
+        palabra = tupla[0]
+        top_palabras.append(palabra)
+
+    for p in top_palabras:
+        if p not in indice:
+            indice[p] = set()
+        indice[p].add(url)
 
 def calcula_estadisticas_indice(indice: dict[str, set[str]]) -> tuple[int, int, float]:
     """
@@ -150,5 +166,13 @@ def calcula_estadisticas_indice(indice: dict[str, set[str]]) -> tuple[int, int, 
         - Número total de URLs indexadas (sin duplicados).
         - Promedio de URLs por palabra: cuántas URLs hay indexadas para cada palabra, en promedio.
     """
-    # TODO: Ejercicio 7
-    return (0, 0, 0.0)    
+    num_palabras = len(indice)
+    urls_unicas = set()
+    for urls in indice.values():
+        urls_unicas.update(urls)
+    num_urls_unicas = len(urls_unicas)
+
+    total_urls = sum(len(urls) for urls in indice.values())
+    promedio = total_urls / num_palabras if num_palabras > 0 else 0.0
+
+    return num_palabras, num_urls_unicas, promedio
